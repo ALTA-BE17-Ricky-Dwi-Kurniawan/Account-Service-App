@@ -8,21 +8,18 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func InitSQL() *sql.DB {
+func InitSQL() (*sql.DB, error) {
 	var db_connection = os.Getenv("dbconnection")
 	db, err := sql.Open("mysql", db_connection)
-	fmt.Println("tidak berhasil", err.Error())
 	if err != nil {
 		fmt.Println(err)
-		return nil
+		return nil, err
 	}
 
-	if db.Ping() != nil {
-		fmt.Println("tidak berhasil")
-		fmt.Println(db.Ping().Error())
-		return nil
+	if err = db.Ping(); err != nil {
+		fmt.Println(err)
+		return nil, err
 	}
 
-	return db
+	return db, nil
 }
-
