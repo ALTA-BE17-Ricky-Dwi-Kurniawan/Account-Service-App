@@ -1,25 +1,23 @@
 package main
 
 import (
-
 	"account_service_app_project/user_account"
+	"account_service_app_project/database"
 	"fmt"
 	"log"
-	"database/sql"
 
-	_"github.com/go-sql-driver/mysql"
-	"os"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func main() {
-	var connectionString = os.Getenv("DB_CONNECTION")
-	db, err := sql.Open("mysql", connectionString)
-
+	db, err := database.InitSQL()
 	if err != nil {
-		log.Fatal("error open connection", err.Error())
-	} else {
-		fmt.Println("berhasil open")
+		log.Fatal("failed to initialize database:", err.Error())
 	}
+
+	defer db.Close()
+
+	fmt.Println("Successfully connected to the database!")
 
 	var User_account user_account.User_account
 	var menu int
