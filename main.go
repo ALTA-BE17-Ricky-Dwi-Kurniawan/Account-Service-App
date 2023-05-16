@@ -2,34 +2,25 @@ package main
 
 import (
 
-	// "fakhry/rawsql/controllers"
-	// "fakhry/rawsql/entities"
-
-	//"account_service_app_project/database"
-	// "account_service_app_project/user_account"
 	"account_service_app_project/user_account"
 	"fmt"
 	"log"
-
 	"database/sql"
 
-	_ "github.com/go-sql-driver/mysql"
-
+	_"github.com/go-sql-driver/mysql"
 	"os"
 )
 
 func main() {
-	conn := database.InitSQL()
-	mdl := user_account.UserModel{}
-	mdl.SetSQLConnection(conn)
-}
+	var connectionString = os.Getenv("DB_CONNECTION")
+	db, err := sql.Open("mysql", connectionString)
 
-	// 	conn := database.InitSQL()
+	if err != nil {
+		log.Fatal("error open connection", err.Error())
+	} else {
+		fmt.Println("berhasil open")
+	}
 
-	// 	mdl := user_account.UserModel{}
-
-	// 	mdl.SetSQLConnection(conn)
-	// fmt.Println("berhasil")
 	var User_account user_account.User_account
 	var menu int
 
@@ -37,6 +28,9 @@ func main() {
 		fmt.Println("")
 		fmt.Println("1. Register")
 		fmt.Println("2. Login")
+		fmt.Println("3. Read Account")
+		fmt.Println("4. Update Account")
+		fmt.Println("5. Delete Account")
 		fmt.Print("Masukkan Pilihan : ")
 		fmt.Scanln(&menu)
 
@@ -54,17 +48,61 @@ func main() {
 			if User_account.Name == "" || User_account.Password == "" {
 				log.Fatal("Gagal mendaftar. Mohon isi semua data yang dibutuhkan.")
 			}
-
-			// query := "INSERT INTO user_account (nama, no_hp, password) VALUES (?, ?, ?)"
-			// _, err := db.Exec(query, User_account.Name, User_account.Phone_number, User_account.Password)
-			// if err != nil {
-			// 	log.Fatal(err)
-			// }
-
 			fmt.Println("Registrasi berhasil!")
-			// case 2:
-			// 	fmt.Println("Login")
-			// Implement your login logic here
-		}
+		case 2:
+			fmt.Println("Login")
+			fmt.Print("Enter phone\t: ")
+			fmt.Scanln(&User_account.Phone_number)
+			fmt.Print("Enter password\t: ")
+			fmt.Scanln(&User_account.Password)
+
+			user_account.LoginUser(db, User_account)
+			if User_account.Phone_number == User_account.Phone_number && User_account.Password == User_account.Password {
+				log.Fatal("Gagal login")
+			}
+			fmt.Println("Login berhasil!")
+
+		case 3:
+			fmt.Println("Masukkan Nomor Telepon Pencarian")
+			fmt.Print("Enter phone\t: ")
+			var phoneNumber string
+			fmt.Scanln(&phoneNumber)
+
+			user, err := user_account.ReadAccount(db, phoneNumber)
+			if err != nil {
+			log.Fatal(err)
+			}
+
+			fmt.Println("Name:", user.Name)
+			fmt.Println("Phone Number:", user.Phone_number)
+			fmt.Println("Password:", user.Password)
+			
+			
+
+		case 4:
+			fmt.Println("Update Account")
+			fmt.Print("Enter phone\t: ")
+			fmt.Scanln(&User_account.Phone_number)
+			fmt.Print("Enter new name\t: ")
+			fmt.Scanln(&User_account.Name)
+			fmt.Print("Enter new password\t: ")
+			fmt.Scanln(&User_account.Password)
+		
+			err := user_account.UpdateAccount(db, User_account)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println("Account updated successfully!")	
+		case 5:
+			fmt.Println("Delete Account")
+			fmt.Print("Enter phone\t: ")
+			fmt.Scanln(&User_account.Phone_number)
+		
+			err := user_account.DeleteAccount(db, User_account.Phone_number)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println("Account deleted successfully!")
 	}
+}
 }
