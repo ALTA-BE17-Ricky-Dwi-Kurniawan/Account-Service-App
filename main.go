@@ -19,18 +19,10 @@ import (
 )
 
 func main() {
-	// fmt.Println("test")
-	var db_connection = os.Getenv("dbconnection")
-	db, err := sql.Open("mysql", db_connection)
-	// fmt.Println("tidak berhasil", err.Error())
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	if db.Ping() != nil {
-		fmt.Println("tidak berhasil")
-		fmt.Println(db.Ping().Error())
-	}
+	conn := database.InitSQL()
+	mdl := user_account.UserModel{}
+	mdl.SetSQLConnection(conn)
+}
 
 	// 	conn := database.InitSQL()
 
