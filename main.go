@@ -57,15 +57,17 @@ func main() {
 			fmt.Print("Enter password\t: ")
 			fmt.Scanln(&User_account.Password)
 
+			user_account.RegisterUser(db, User_account)
+
 			if User_account.Name == "" || User_account.Password == "" {
 				log.Fatal("Gagal mendaftar. Mohon isi semua data yang dibutuhkan.")
 			}
 
-			query := "INSERT INTO user (nama, no_hp, password) VALUES (?, ?, ?)"
-			_, err := db.Exec(query, User_account.Name, User_account.Phone_number, User_account.Password)
-			if err != nil {
-				log.Fatal(err)
-			}
+			// query := "INSERT INTO user_account (nama, no_hp, password) VALUES (?, ?, ?)"
+			// _, err := db.Exec(query, User_account.Name, User_account.Phone_number, User_account.Password)
+			// if err != nil {
+			// 	log.Fatal(err)
+			// }
 
 			fmt.Println("Registrasi berhasil!")
 			// case 2:
