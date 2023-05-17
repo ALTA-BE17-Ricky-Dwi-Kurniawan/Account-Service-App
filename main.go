@@ -130,10 +130,12 @@ func main() {
 			if err != nil {
 				log.Fatal("Invalid amount entered")
 			}
-			fmt.Printf("id pengirim: %v", &sender_account_id)
-			fmt.Printf("id penerima: %v", &receiver_account_id)
+			var sender_account_id int
+			var receiver_account_id int
+			fmt.Printf("id pengirim: %d", &sender_account_id)
+			fmt.Printf("id penerima: %d", &receiver_account_id)
 
-			err = transaction.TopUp(db, User_account.Id, amount)
+			err = transaction.TopUp(db, User_account.Id, amount, sender_account_id, receiver_account_id)
 			if err != nil {
 				log.Fatal(err)
 			}
