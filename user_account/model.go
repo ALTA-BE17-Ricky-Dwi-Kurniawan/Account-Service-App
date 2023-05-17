@@ -14,8 +14,8 @@ func (R *UserModel) SetSQLConnection(db *sql.DB) {
 }
 
 func RegisterUser(db *sql.DB, user_account User_account) error {
-	insertquery := "insert into user_account (name, phone_number, password) values (?, ?, ?)"
-	_, err := db.Exec(insertquery, user_account.Name, user_account.Phone_number, user_account.Password)
+	insertquery := "insert into user_account (name, phone_number, password, balance) values (?, ?, ?, ?)"
+	_, err := db.Exec(insertquery, user_account.Name, user_account.Phone_number, user_account.Password, user_account.Balance)
 	if err != nil {
 		return fmt.Errorf("failed to create user account: %v", err)
 	}

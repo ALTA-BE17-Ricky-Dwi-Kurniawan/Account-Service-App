@@ -25,6 +25,8 @@ func main() {
 	var User_account user_account.User_account
 	var menu int
 
+
+
 	for menu != 99 {
 		fmt.Println("")
 		fmt.Println("1. Register")
@@ -73,6 +75,7 @@ func main() {
 			}
 
 	fmt.Println("Login berhasil!")
+
 		case 3:
 			fmt.Println("Masukkan Nomor Telepon Pencarian")
 			fmt.Print("Enter phone\t: ")
@@ -88,8 +91,6 @@ func main() {
 			fmt.Println("Phone Number:", user.Phone_number)
 			fmt.Println("Password:", user.Password)
 			
-			
-
 		case 4:
 			fmt.Println("Update Account")
 			fmt.Print("Enter phone\t: ")
@@ -115,53 +116,49 @@ func main() {
 			}
 			fmt.Println("Account deleted successfully!")
 		case 6:
+			// Cek User sudah login atau belum 
+			if User_account.Phone_number == "" { 
+				log.Fatal("No logged-in account found") 
+			   } 
+			
+			fmt.Printf("Using logged-in account: %s\n", User_account.Name) 
+			
+			// Top-Up
 			fmt.Println("Top-Up")
-
-			// Cek User sudah login atau belum
-			if User_account.Phone_number == "" {
-				log.Fatal("No logged-in account found")
-			}
-
-			fmt.Printf("Using logged-in account: %s\n", User_account.Name)
-
 			fmt.Print("Enter amount: ")
 			var amount int
-			_, err := fmt.Scanf("%d", &amount)
-			if err != nil {
-				log.Fatal("Invalid amount entered")
-			}
-			var sender_account_id int
-			var receiver_account_id int
-			fmt.Printf("id pengirim: %d", &sender_account_id)
-			fmt.Printf("id penerima: %d", &receiver_account_id)
-
-			err = transaction.TopUp(db, User_account.Id, amount, sender_account_id, receiver_account_id)
+			fmt.Scanln(&amount)
+			
+			
+			err := transaction.TopUp(db, User_account.Id, amount)
 			if err != nil {
 				log.Fatal(err)
 			}
+
 			fmt.Println("Top-up successful!")
-			return
-		
+
 		// case 7:
-		// 	if User_account.Phone_number == "" {
-		// 		log.Fatal("No logged-in account found")
+		// 	if !loggedIn {
+		// 		log.Fatal("Anda harus login terlebih dahulu.")
 		// 	}
-	
+
 		// 	fmt.Println("Transfer")
-		// 	fmt.Print("Enter recipient's phone number: ")
-		// 	var Receiver_account_id int
-		// 	fmt.Scanln(&Receiver_account_id)
-		// 	fmt.Print("Enter amount: ")
+		// 	fmt.Print("Masukkan jumlah transfer: ")
 		// 	var amount int
-		// 	_, err := fmt.Scanf("%d", &amount)
-		// 	if err != nil {
-		// 		log.Fatal("Invalid amount entered")
-		// 	}
-	
-		// 	err = transaction.Transfer(db, User_account.Id, Receiver_account_id, amount)
+		// 	fmt.Scanln(&amount)
+		// 	fmt.Print("Masukkan nomor akun tujuan: ")
+		// 	var receiverID int
+		// 	fmt.Scanln(&receiverID)
+
+		// 	err := transaction.Transfer(db, User_account.Id, receiverID, amount)
 		// 	if err != nil {
 		// 		log.Fatal(err)
 		// 	}
-		// 	fmt.Println("Transfer successful!")
+
+		// 	// Update saldo pengguna
+		// 	User_account.Balance -= amount
+
+		// 	fmt.Println("Transfer berhasil!")
+
 
 		}}}

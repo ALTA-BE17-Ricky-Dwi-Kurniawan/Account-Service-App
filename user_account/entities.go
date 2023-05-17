@@ -5,4 +5,5 @@ type User_account struct {
 	Name         string
 	Phone_number string
 	Password     string
+	Balance		 int
 }
