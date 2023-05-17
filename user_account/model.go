@@ -22,10 +22,10 @@ func RegisterUser(db *sql.DB, user_account User_account) error {
 	return nil
 }
 
-func LoginUser(db *sql.DB, user_account User_account) error {
-	selectquery := "SELECT * FROM user_account WHERE No_HP = ?"
+func LoginUser(db *sql.DB, user_account *User_account) error {
+	selectquery := "SELECT id, name, phone_number, password FROM user_account WHERE phone_number = ?"
 	row := db.QueryRow(selectquery, user_account.Phone_number)
-	err := row.Scan(&user_account.Name, &user_account.Phone_number, &user_account.Password)
+	err := row.Scan(&user_account.Id, &user_account.Name, &user_account.Phone_number, &user_account.Password)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return fmt.Errorf("user not found")
@@ -33,7 +33,7 @@ func LoginUser(db *sql.DB, user_account User_account) error {
 		return fmt.Errorf("failed to login: %v", err)
 	}
 
-	// Memeriksa kesesuaian kata sandi
+	// Verifying the password
 	if user_account.Password != user_account.Password {
 		return fmt.Errorf("incorrect password")
 	}
@@ -42,7 +42,7 @@ func LoginUser(db *sql.DB, user_account User_account) error {
 }
 
 func ReadAccount(db *sql.DB, phoneNumber string) (User_account, error) {
-	selectQuery := "SELECT * FROM user_account WHERE phone_number = ?"
+	selectQuery := "SELECT name, phone_number, password FROM user_account WHERE phone_number = ?"
 	row := db.QueryRow(selectQuery, phoneNumber)
 
 	var user User_account
