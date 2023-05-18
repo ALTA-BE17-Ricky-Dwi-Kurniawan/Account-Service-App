@@ -4,6 +4,7 @@ import (
 	// "account_service_app_project/user_account"
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -92,7 +93,7 @@ func Transfer(db *sql.DB, Sender_account_id int, Receiver_phone_number string, a
 
 func HistoryTopUp(db *sql.DB, accountID int) error {
 	// Mengambil riwayat top-up dari database berdasarkan ID akun
-	query := "SELECT transaction_type, transaction_date, amount FROM transaction WHERE sender_account_id = ? AND transaction_type = 'Top-up'"
+	query := "SELECT transaction_type 'Top-up', transaction_date, amount FROM transaction WHERE sender_account_id = ?, AND transaction_type = 'Top-up'"
 	rows, err := db.Query(query, accountID)
 	if err != nil {
 		return fmt.Errorf("failed to retrieve top-up history: %v", err)
@@ -107,7 +108,41 @@ func HistoryTopUp(db *sql.DB, accountID int) error {
 		var amount int
 		err := rows.Scan(&transactionType, &transactionDate, &amount)
 		if err != nil {
-			return fmt.Errorf("failed to scan top-up history rows: %v", err)
+			return fmt.Errorf("failed to scan Top-up history rows: %v", err)
+		}
+
+		fmt.Printf("Transaction Type: %s\n", strings.Split(transactionType, "Top-up"))
+		fmt.Printf("Transaction Date: %s\n", transactionDate.Format("2006-01-02 15:04:05"))
+		fmt.Printf("Amount: %d\n", amount)
+		fmt.Println("------------------------")
+	}
+
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("failed to iterate over Top-up history rows: %v", err)
+	}
+
+	return nil
+}
+
+// func HistoryTransfer
+func HistoryTransfer(db *sql.DB, accountID int) error {
+	// Mengambil riwayat transfer dari database berdasarkan ID akun
+	query := "SELECT transaction_type, transaction_date, amount FROM transaction WHERE (sender_account_id = ? OR receiver_account_id = ?) AND transaction_type = 'Transfer'"
+	rows, err := db.Query(query, accountID, accountID)
+	if err != nil {
+		return fmt.Errorf("failed to retrieve transfer history: %v", err)
+	}
+	defer rows.Close()
+
+	// Menampilkan riwayat transfer
+	fmt.Println("Transfer History:")
+	for rows.Next() {
+		var transactionType string
+		var transactionDate time.Time
+		var amount int
+		err := rows.Scan(&transactionType, &transactionDate, &amount)
+		if err != nil {
+			return fmt.Errorf("failed to scan transfer history rows: %v", err)
 		}
 
 		fmt.Printf("Transaction Type: %s\n", transactionType)
@@ -117,10 +152,8 @@ func HistoryTopUp(db *sql.DB, accountID int) error {
 	}
 
 	if err := rows.Err(); err != nil {
-		return fmt.Errorf("failed to iterate over top-up history rows: %v", err)
+		return fmt.Errorf("failed to iterate over transfer history rows: %v", err)
 	}
 
 	return nil
 }
-
-// func HistoryTransfer

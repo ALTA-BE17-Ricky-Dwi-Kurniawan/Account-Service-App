@@ -37,7 +37,8 @@ func main() {
 		fmt.Println("7. Transfer")
 		fmt.Println("8. Top-Up History")
 		fmt.Println("9. Transfer History")
-		fmt.Println("10. View Other User Profile")
+		fmt.Println("10. Melihat Profile User Lain")
+		fmt.Println("0. ExitSystem")
 		fmt.Print("Masukkan Pilihan : ")
 		fmt.Scanln(&menu)
 
@@ -167,13 +168,13 @@ func main() {
 			fmt.Printf("Akun yang sedang login: %s\n", User_account.Name)
 
 			// Melihat history top-up
-			fmt.Println("History top-up")
+			fmt.Println("History Top-up")
 
 			// Mengambil data history top-up dari database berdasarkan akun pengguna
-			query := "SELECT transaction_type, transaction_date, amount FROM transaction WHERE sender_account_id = ?"
+			query := "SELECT transaction_type, transaction_date, amount FROM transaction WHERE sender_account_id = ? AND transaction_type = 'Top-up'"
 			rows, err := db.Query(query, User_account.Id)
 			if err != nil {
-				log.Fatal("Failed to retrieve history top-up: ", err)
+				log.Fatal("Failed to retrieve history Top-up: ", err)
 			}
 			defer rows.Close()
 
@@ -184,7 +185,7 @@ func main() {
 				var amount int
 				err := rows.Scan(&transactionType, &transactionDateStr, &amount)
 				if err != nil {
-					log.Fatal("Failed to scan history top-up rows: ", err)
+					log.Fatal("Failed to scan history Top-up rows: ", err)
 				}
 
 				// Konversi string tanggal menjadi time.Time
@@ -194,14 +195,83 @@ func main() {
 				}
 
 				fmt.Printf("Transaction Type: %s\n", transactionType)
-				fmt.Printf("Transaction Date: %s\n", transactionDate.Format("2006-01-02 15:04:05"))
+				fmt.Printf("Transaction Date: %s\n", transactionDate.Format("2023-05-18 15:04:05"))
 				fmt.Printf("Amount: %d\n", amount)
 				fmt.Println("------------------------")
 			}
 
 			if err := rows.Err(); err != nil {
-				log.Fatal("Failed to iterate over history top-up rows: ", err)
+				log.Fatal("Failed to iterate over history Top-up rows: ", err)
 			}
+
+		case 9:
+			if User_account.Phone_number == "" {
+				log.Fatal("Anda harus login terlebih dahulu.")
+			}
+			fmt.Printf("Akun yang sedang login: %s\n", User_account.Name)
+
+			// Melihat history transfer
+			fmt.Println("History Transfer")
+
+			// Mengambil data history Transfer dari database berdasarkan akun pengguna
+			query := "SELECT transaction_type, transaction_date, amount FROM transaction WHERE sender_account_id = ? AND transaction_type = 'Transfer'"
+			rows, err := db.Query(query, User_account.Id)
+			if err != nil {
+				log.Fatal("Failed to retrieve history Transfer: ", err)
+			}
+			defer rows.Close()
+
+			// Menampilkan data history transfer
+			for rows.Next() {
+				var transactionType string
+				var transactionDateStr string
+				var amount int
+				err := rows.Scan(&transactionType, &transactionDateStr, &amount)
+				if err != nil {
+					log.Fatal("Failed to scan history Transfer rows: ", err)
+				}
+
+				// Konversi string tanggal menjadi time.Time
+				transactionDate, err := time.Parse("2006-01-02 15:04:05", transactionDateStr)
+				if err != nil {
+					log.Fatal("Failed to parse transaction date: ", err)
+				}
+
+				fmt.Printf("Transaction Type: %s\n", transactionType)
+				fmt.Printf("Transaction Date: %s\n", transactionDate.Format("2023-05-18 15:04:05"))
+				fmt.Printf("Amount: %d\n", amount)
+				fmt.Println("------------------------")
+			}
+
+			if err := rows.Err(); err != nil {
+				log.Fatal("Failed to iterate over history Top-up rows: ", err)
+			}
+
+		case 10:
+			if User_account.Phone_number == "" {
+				log.Fatal("Anda harus login terlebih dahulu.")
+			}
+			fmt.Println("Masukkan Nomor Telepon Pencarian")
+			fmt.Print("Masukkan Nomer Handphone\t: ")
+			var phoneNumber string
+			fmt.Scanln(&phoneNumber)
+
+			user, err := user_account.ViewUserProfile(db, phoneNumber)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			fmt.Println("Profile user: ")
+			fmt.Println("Nama:", user.Name)
+			fmt.Println("Nomer Handphone:", user.Phone_number)
+
+		case 0:
+			// Cek User sudah login atau belum
+			if User_account.Phone_number == "" {
+				log.Fatal("Tidak login akun tidak ditemukan")
+			}
+
+			user_account.ExitSystem()
 
 		}
 	}

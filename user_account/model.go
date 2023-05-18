@@ -3,6 +3,7 @@ package user_account
 import (
 	"database/sql"
 	"fmt"
+	"os"
 )
 
 type UserModel struct {
@@ -73,4 +74,27 @@ func DeleteAccount(db *sql.DB, phoneNumber string) error {
 		return fmt.Errorf("gagal untuk menghapus akun: %v", err)
 	}
 	return nil
+}
+
+func ViewUserProfile(db *sql.DB, phoneNumber string) (*User_account, error) {
+	selectQuery := "SELECT id, name, phone_number FROM user_account WHERE phone_number = ?"
+	row := db.QueryRow(selectQuery, phoneNumber)
+
+	user := &User_account{}
+	err := row.Scan(&user.Id, &user.Name, &user.Phone_number)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("user with phone number '%s' not found", phoneNumber)
+		}
+		return nil, fmt.Errorf("failed to retrieve user profile: %v", err)
+	}
+
+	user.Password = ""
+
+	return user, nil
+}
+
+func ExitSystem() {
+	fmt.Println("Terimakasih sudah bertransaksi")
+	os.Exit(0)
 }
